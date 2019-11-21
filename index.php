@@ -6,6 +6,10 @@
 	</head>
 	<body>
 		<form action="recherche.php" method="post">
+			<select name="recherche">
+				<option value="client">client</option>
+				<option value="conseiller">conseiller</option>
+			</select>
 			<input type="text" name="name" placeholder="nom">
 			<input type="text" name="pays" placeholder="pays">
 			<input type="text" name="page" placeholder="page">
