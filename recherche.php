@@ -14,7 +14,6 @@
           $query .= "AND pays LIKE '{$pays}%' ";
         }
       }
-      // echo $query;
 	    $stm = $pdo->query($query);
       return $stm->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -28,9 +27,16 @@
       if($nom){
           $query .= " WHERE nom LIKE '{$nom}%'";
       }
-      // echo $query;
       $stm = $pdo->query($query);
-      return $stm->fetchAll(PDO::FETCH_ASSOC);
+      $conseillers = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+      for ($i=0; $i < count($conseillers); $i++) {
+        $query = "SELECT * from client WHERE conseiller_id = {$conseillers[$i]['id']}";
+        $stm = $pdo->query($query);
+        $clients = $stm->fetchAll(PDO::FETCH_ASSOC);
+        $conseillers[$i]['clients'] = $clients;
+      }
+      return $conseillers;
   }
 
   $recherche = $_POST['recherche'];
@@ -112,7 +118,22 @@
   }
 
   function printXML($rows){
-
+    $f = fopen('php://memory', 'w');
+    foreach ($rows as $row) {
+        $string = "<client id=".$row['id'].">
+          <nom>".$row['nom']."</nom>
+          <prenom>".$row['prenom']."</prenom>
+          <email>".$row['email']."</email>
+          <pays>".$row['pays']."</pays>
+          <npa>".$row['npa']."</npa>
+        </client>
+        ";
+        fwrite($f, $string);
+    }
+    fseek($f, 0);
+    header('Content-Type: application/csv');
+    header('Content-Disposition: attachment; filename="fichier.xml";');
+    fpassthru($f);
   }
 
   function printJSON($rows){
